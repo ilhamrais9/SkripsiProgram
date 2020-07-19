@@ -104,7 +104,6 @@ def plotData2(data1, data2, time, name, ke):
     return (saveto)
 
 
-
 def signalProcessing(signal,t, lowcut, highcut):
     fs = len(signal)/t
     y = butter_bandpass_filter(signal,lowcut, highcut,fs,order=5)
@@ -135,6 +134,11 @@ def signalProcessing(signal,t, lowcut, highcut):
 #     plotData2(a,b,15, str(str(u)+"Filter"), "")
 #     c = c + 1
 
+a,b = ReadFile("ilham20keC1")
+print("Processing..")
+a = FunctionOnlyone.signalProcessingButter(a,15,20,500,500,500,5)
+b = FunctionOnlyone.signalProcessingButter(b,15,20,500,500,500,5)
+plotData2(a,b,15,"Coba","15")
 
 
 # 

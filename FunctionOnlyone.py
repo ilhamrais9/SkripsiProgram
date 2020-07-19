@@ -8,6 +8,8 @@ import matplotlib.animation as animation
 import numpy as np
 import os
 from datetime import datetime 
+from scipy.signal import butter, lfilter
+from math import sqrt
 
 def activate():
     arduino = serial.Serial('COM3', 74880) # Establish the connection on a specific port
@@ -387,6 +389,8 @@ def plotData3(data1, data2, data3, time, name, ke):
     plt.savefig(saveto)
     plt.show()
     plt.close
+
+
 def plotFigure2(a, b, c,d,e,f,FullA, FullB, time, ke, name):
     name = "./data/" + name +  ke + ".png"
     j = []
@@ -527,10 +531,66 @@ def saveReadme(self, subjek, ke, freq, time):
         f.close()
 
 
+def ADCtoVolt(a):
+    ai = []
+    for element in a:
+        ai.append(5*float(element)/1024)
+    return ai
+
+def butter_bandpass(lowcut, highcut, fs, order=5):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
+def recrification(a):
+    mA = []
+    A = ave(a)
+    for element in a:
+        c = element-A
+        mA.append(c*c)
+    return(mA)
+
+def movingAvarage(a,ws):
+    i = 0
+    r= []
+    while i < len(a) - ws + 1:
+        tW = a[i:i+ws]
+        wA = sum(tW)/ws
+        r.append(wA)
+        i += 1
+    return r[200:]
+
+def RMS(a, ws):
+    rms = []
+    i = 0
+    while i < len(a) - ws + 1:
+        tW = a[i:i+ws]
+        t2 = sum(tW)/ws
+        wA = sqrt(t2*t2)
+        rms.append(wA)
+        i += 1 
+    return(rms)
 
 
+def signalProcessingButter (signal, t, lowcut,higcut,ws, NilaiRMS, order):
+    fs = len(signal)/t
+    signal = butter_bandpass_filter(signal, lowcut,higcut,fs, order)
+    print("filtering..")
+    signal = recrification(signal)
+    print("Recrificationing...")
+    signal = movingAvarage(signal, ws)
+    print("Moving avareging...")
+    signal = RMS(signal, NilaiRMS)
+    print("Processing RMS...")
+    return signal
 
-        
 
 
 
