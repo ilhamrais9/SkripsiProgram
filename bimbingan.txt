@@ -1,0 +1,22 @@
+Tujuan skripsi
+Karakterisasi sinyal nya mau seperti apa
+
+mau mencari karakter tertentu dari otot tangan dalam kondisi tertentu
+seperti, perbedaan tangan kanan dan Kiri 
+kondisi kesehatan dari otot itu sendiri (orang sehat dan sakit)
+kondisi otot setelah melakukan olahraga
+
+
+perbedaan karakter yang dimaksud?
+perbedaan kenaikan potensial dari kontraksi otot (saat langsung dan berdasarkan histori)
+noise dari otot?
+
+hasil sinyal di input ke NN untuk dapat membedakan keadaan berdasarkan algoritma
+
+
+
+muscle evoked potential
+
+everage 
+jangan di anggap lonjakan gaada makna itu evoked potensialnya
+
