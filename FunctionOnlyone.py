@@ -8,7 +8,7 @@ import matplotlib.animation as animation
 import numpy as np
 import os
 from datetime import datetime 
-from scipy.signal import butter, lfilter
+from scipy.signal import butter, lfilter, firwin, freqz
 from math import sqrt
 
 def activate():
@@ -578,10 +578,39 @@ def RMS(a, ws):
         i += 1 
     return(rms)
 
+def bandpass_firwin(ntaps, lowcut, highcut, fs, window='hamming'):
+    nyq = 0.5 * fs
+    taps = firwin(ntaps, [lowcut, highcut], nyq=nyq, pass_zero=False,
+                  window=window)
+    return taps
 
-def signalProcessingButter (signal, t, lowcut,higcut,ws, NilaiRMS, order):
+def bandpass_firwin_filter(data, ntaps, lowcut, highcut, fs):
+    taps = bandpass_firwin(ntaps, lowcut, highcut, fs)
+    # w,h = freqz(taps, 1, worN=2000)
+    y = lfilter(taps,1.0, data)
+    return y
+
+def showResponFilter(taps, lowcut, highcut,fs):
+    plt.figure(1, figsize=(12,9))
+    plt.clf()
+    rect = plt.Rectangle((lowcut,0), highcut-lowcut, 1.0, facecolor="#60ff60", alpha=0.2)
+    plt.gca().add_patch(rect)
+    w,h = freqz(taps, 1, worN=2000)
+    plt.plot((fs * 0.5 / np.pi) * w, abs(h), label="Respon Filter")
+    plt.xlim(0, fs+fs/10)
+    plt.ylim(0, 1.1)
+    plt.grid(True)
+    plt.legend()
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Gain')
+    plt.title('Frequency response of FIR filter')
+    plt.show()
+    plt.close()
+
+def signalProcessingButter (signal, t, lowcut,highcut,ws, NilaiRMS, order):
     fs = len(signal)/t
-    signal = butter_bandpass_filter(signal, lowcut,higcut,fs, order)
+    signal = bandpass_firwin_filter(data = signal, ntaps=1200, lowcut=lowcut, highcut=highcut,fs= int(len(signal)/t))
+    # print(signal)
     print("filtering..")
     signal = recrification(signal)
     print("Recrificationing...")
@@ -590,6 +619,8 @@ def signalProcessingButter (signal, t, lowcut,higcut,ws, NilaiRMS, order):
     signal = RMS(signal, NilaiRMS)
     print("Processing RMS...")
     return signal
+
+
 
 
 

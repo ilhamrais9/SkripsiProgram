@@ -7,8 +7,6 @@ import matplotlib
 import numpy as np
 from scipy.fft import fft
 
-
-
 def butter_bandpass(lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
     low = lowcut / nyq
@@ -76,7 +74,7 @@ def plotData2(data1, data2, time, name, ke):
     plt.plot(data1)
     P = np.array(P)
     plt.fill_between(P[int(len(P)/3):int(len(P)*2/3)], data1[int(len(P)/3):int(len(P)*2/3)], 0,color='aqua')
-    plt.plot(data1.index(max(data1)), max(data1), 'x', color='red', linewidth=2)
+    plt.plot(data1.index(max(data1[int(len(data1)/3):int(len(data1)*2/3)])), max(data1[int(len(data1)/3):int(len(data1)*2/3)]), 'x', color='red', linewidth=2)
     plt.title("Tangan Kanan")
     plt.ylabel("Volt")
     plt.grid()
@@ -88,7 +86,7 @@ def plotData2(data1, data2, time, name, ke):
     plt.xticks(o, oi)
     plt.subplot(grid[1,0])
     plt.plot(data2)
-    plt.plot(data2.index(max(data2)), max(data2), 'x', color='red', linewidth=2)
+    plt.plot(data2.index(max(data2[int(len(data2)/3):int(len(data2)*2/3)])), max(data2[int(len(data2)/3):int(len(data2)*2/3)]), 'x', color='red', linewidth=2)
     plt.fill_between(P[int(len(P)/3):int(len(P)*2/3)], data2[int(len(P)/3):int(len(P)*2/3)], 0,color='aqua')
     plt.title("Tangan Kiri")
     plt.ylabel("Volt")
@@ -98,8 +96,8 @@ def plotData2(data1, data2, time, name, ke):
     plt.xlabel(ket2)
     plt.grid()
     plt.xticks(o1, oi)
-    plt.savefig(saveto)
-    # plt.show()
+    # plt.savefig(saveto)
+    plt.show()
     # plt.close
     return (saveto)
 
