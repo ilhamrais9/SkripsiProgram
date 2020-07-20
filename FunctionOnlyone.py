@@ -8,7 +8,8 @@ import matplotlib.animation as animation
 import numpy as np
 import os
 from datetime import datetime 
-from scipy.signal import butter, lfilter, firwin, freqz
+from scipy import fftpack
+from scipy.signal import butter, lfilter, firwin, freqz, welch
 from math import sqrt
 
 def activate():
@@ -565,7 +566,7 @@ def movingAvarage(a,ws):
         wA = sum(tW)/ws
         r.append(wA)
         i += 1
-    return r[200:]
+    return r
 
 def RMS(a, ws):
     rms = []
@@ -620,7 +621,30 @@ def signalProcessingButter (signal, t, lowcut,highcut,ws, NilaiRMS, order):
     print("Processing RMS...")
     return signal
 
+def fastFourierTransform(signal, time, name="TEST"):
+    fs = len(signal)/time
+    Signal = fftpack.fft(signal)
+    freqs = fftpack.fftfreq(len(signal))*fs
+    fig, ax = plt.subplots()
+    plt.plot(freqs, abs(Signal))
+    plt.xlabel('Frequency in Hz')
+    plt.ylabel('Frequency Domain (spectrum) Magnitude')
+    plt.grid(True)
+    n = str("./image/"+ str(name) +"FFT")
+    plt.savefig(n)
+    plt.show()
+    plt.close()
 
+    
+def welchFunction(data, time):
+    fs = data/time
+    f , Pxx_den = welch(data, fs)
+    plt.semilogy(f, Pxx_den)
+    # plt.ylim([0.5e-3, 1])
+    plt.xlabel('frequency [Hz]')
+    plt.ylabel('PSD [V**2/Hz]')
+    plt.show()
+    plt.close()
 
 
 

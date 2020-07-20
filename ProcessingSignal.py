@@ -134,8 +134,17 @@ def signalProcessing(signal,t, lowcut, highcut):
 
 a,b = ReadFile("ilham20keC1")
 print("Processing..")
-a = FunctionOnlyone.signalProcessingButter(a,15,20,500,500,500,5)
-b = FunctionOnlyone.signalProcessingButter(b,15,20,500,500,500,5)
+a = FunctionOnlyone.bandpass_firwin_filter(a,1200,20,500,len(a)/15)
+b = FunctionOnlyone.bandpass_firwin_filter(b,1200,20,500,len(a)/15)
+FunctionOnlyone.fastFourierTransform(a[0:int(len(a)/3)],15, name="Relax1")
+FunctionOnlyone.fastFourierTransform(a[int(len(a)/3):int(len(a)*2/3)],15,name="Gerak1")
+FunctionOnlyone.fastFourierTransform(a[int(len(a)*2/3):-1], 15, name="RelaxAkhir1")
+a = FunctionOnlyone.fastFourierTransform(a,15)
+b =FunctionOnlyone.fastFourierTransform(b,15)
+# a = FunctionOnlyone.welchFunction(a, 15)
+# b = FunctionOnlyone.welchFunction(a, 15)
+# a = FunctionOnlyone.signalProcessingButter(a,15,20,500,500,500,5)
+# b = FunctionOnlyone.signalProcessingButter(b,15,20,500,500,500,5)
 plotData2(a,b,15,"Coba","15")
 
 
