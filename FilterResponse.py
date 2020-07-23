@@ -34,7 +34,7 @@ if __name__ == "__main__":
     lowcut = 20
     highcut = 500
 
-    ntaps = 1200
+    ntaps = 1500
     taps_hamming = bandpass_firwin(ntaps, lowcut, highcut, fs=fs)
     taps_kaiser16 = bandpass_kaiser(ntaps, lowcut, highcut, fs=fs, width=1.6)
     taps_kaiser10 = bandpass_kaiser(ntaps, lowcut, highcut, fs=fs, width=1.0)
