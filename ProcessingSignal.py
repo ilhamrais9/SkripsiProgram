@@ -136,14 +136,15 @@ a,b = ReadFile("ilham20keC1")
 print("Processing..")
 ap = a[int(len(a)/2):int(len(a)*2/3)]
 bp = b[int(len(b)/2):int(len(b)*2/3)]
-# a = FunctionOnlyone.bandpass_firwin_filter(a,1200,20,500,len(a)/15)
-# b = FunctionOnlyone.bandpass_firwin_filter(b,1200,20,500,len(b)/15)
-# a = FunctionOnlyone.fastFourierTransform(a,15,name="FFTilhamke20C1A")
-# b = FunctionOnlyone.fastFourierTransform(b,15,name="FFTilhamke20C1B")
+a = FunctionOnlyone.bandpass_firwin_filter(a,1200,20,500,len(a)/15)
+b = FunctionOnlyone.bandpass_firwin_filter(b,1200,20,500,len(b)/15)
+a = FunctionOnlyone.fastFourierTransform(a,15,name="FFTilhamke20C1A", fs=len(a)/15)
+b = FunctionOnlyone.fastFourierTransform(b,15,name="FFTilhamke20C1B", fs=len(b)/15)
 # a = FunctionOnlyone.welchFunction(a, 15)
 # b = FunctionOnlyone.welchFunction(a, 15)
-a = FunctionOnlyone.signalProcessingButter(a,15,20,500,500,500,5)
-b = FunctionOnlyone.signalProcessingButter(b,15,20,500,500,500,5)
+# a = FunctionOnlyone.signalProcessingFirwin(a,15,20,500,500,500,5, show=True)
+# b = FunctionOnlyone.signalProcessingFirwin(b,15,20,500,500,500,5, show=True)
+plotData2(a,b,15,"test","")
 
 # 
 # lowcut = 10
