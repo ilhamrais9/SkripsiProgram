@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot  as plt
 from scipy.signal import welch
 
+
 """
 Program Database untuk memproses hasil data
 """
@@ -26,10 +27,10 @@ while i < len(subjek) and i < len(folder):
         else:
             dataName = str(str(subjek[i])+str(j))
         c,d = FunctionOnlyone.ReadFile(dataName, folder[i])
-        # c = FunctionOnlyone.signalProcessingFirwin(c, 15, 20, 500, 500,Ave=False, save=save,show=show)
-        # d = FunctionOnlyone.signalProcessingFirwin(d,15,20,500,500,Ave=False, save=save, show=show)
-        # name = str("Filtered"+str(subjek[i]))
-        # FunctionOnlyone.createFile2(c,d,name,str(j),subjek=folder[i])
+        c = FunctionOnlyone.signalProcessingFirwin(c, 15, 20, 500, 500,Ave=False, save=save,show=show)
+        d = FunctionOnlyone.signalProcessingFirwin(d,15,20,500,500,Ave=False, save=save, show=show)
+        name = str("Filtered"+str(subjek[i]))
+        FunctionOnlyone.createFile2(c,d,name,str(j),subjek=folder[i])
         dataS = {
             'name' : dataName,
             'kanan' : c,

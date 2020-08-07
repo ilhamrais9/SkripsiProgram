@@ -9,7 +9,7 @@ def akusisi():
     subjek = input("Masukan nama subjek... ")
     i = 1
     print("Akusisi data akan dimulai 20x selama 15 detik tiap gerakan nya secara bersamaan")
-    while i < 21:
+    while i < 22:
         a = []
         b = []
         t = 15
@@ -19,6 +19,8 @@ def akusisi():
         sleep(3)
         print("Pengambilan data dimulai!")
         a,b = FunctionOnlyone.activeteAccusition(a, b, t)
+        a = FunctionOnlyone.CheckData(a)
+        b = FunctionOnlyone.CheckData(b)
         ke = FunctionOnlyone.plotData2ADC(a,b,t,subjek, ke = str(i), subjek=folder, show=True, save=True)
         r = input("Masukan data? y/n")
         if r == 'y':
@@ -38,7 +40,19 @@ def akusisi():
         #     input("Continue?")
         #     print("Pengambilan Error, mengulang untuk yang ke.. ", i)
         #     pass
+    print("Creating database...")
     FunctionOnlyone.createDatabaseid(subjek, folder)
+    i = 1
+    save = True
+    show = False
+    while i <= 20:
+        dataName = str(str(subjek)+str(i))
+        c,d = FunctionOnlyone.ReadFile(dataName, folder)
+        c = FunctionOnlyone.signalProcessingFirwin(c, 15, 20, 500, 500,Ave=False, save=save,show=show)
+        d = FunctionOnlyone.signalProcessingFirwin(d,15,20,500,500,Ave=False, save=save, show=show)
+        name = str("Filtered"+str(subjek[i]))
+        FunctionOnlyone.createFile2(c,d,name,str(i),subjek=folder)
+        i += 1
     print("Pengamilan data 20x selesai!")
     print("Menampilkan hasil data..")
 

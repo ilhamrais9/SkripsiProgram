@@ -14,8 +14,8 @@ from math import sqrt
 import cmath
 
 def activate():
-    arduino = serial.Serial('COM6', 74880) # Establish the connection on a specific port
-    arduino1 = serial.Serial('COM8', 74880) # Establish the connection on a specific port
+    arduino = serial.Serial('COM8', 74880) # Establish the connection on a specific port
+    arduino1 = serial.Serial('COM6', 74880) # Establish the connection on a specific port
     return arduino, arduino1
 
 def activate1():
@@ -359,7 +359,7 @@ def plotData2VOLT(data1, data2, time, name, ke,subjek="TEST", limx=False, limy=F
     return (saveto)
 
 def plotData2ADC(data1, data2, time, name, ke,subjek="test", show=False, save=False):
-    saveto = str("./data/"+ str(subjek)+ "/" +str(name)+str(ke)+".png")
+    saveto = str("./data/"+ str(subjek)+ "/image/" +str(name)+str(ke)+".png")
     name1 = "Hasil akusisi " + name + " percobaan ke-" + ke
     o = [0, len(data1)/3, (len(data1)*2)/3, len(data1)]
     o1 = [0, len(data2)/3, (len(data2)*2)/3, len(data2)]
@@ -1060,6 +1060,18 @@ def fftProgram(data, time ,fs=True):
         plt.grid(True)
     plt.show()
 
+def CheckData(data):
+    a = ave(data[100:200])
+    a1 = a+100
+    a2 = a-100
+    i = 0
+    while i < 100:
+        if data[i] > a1:
+            data[i] = a
+        elif data[i] < a2:
+            data[i] = a
+        i +=1
+    return data
 
     # Signal = fftpack.fft(signal)
     # freqs = fftpack.fftfreq(len(signal))*fs
