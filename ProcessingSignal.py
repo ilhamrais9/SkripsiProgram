@@ -1,6 +1,6 @@
 import FunctionOnlyone
 from ReadFile import ReadFile
-from scipy.signal import butter, lfilter,freqz,find_peaks
+from scipy.signal import butter, lfilter,freqz,find_peaks, welch
 from scipy import signal, fftpack
 import matplotlib.pyplot as plt
 import matplotlib
@@ -132,10 +132,10 @@ def signalProcessing(signal,t, lowcut, highcut):
 #     plotData2(a,b,15, str(str(u)+"Filter"), "")
 #     c = c + 1
 
-a,b = ReadFile("ilham20keC1")
+a,b = ReadFile("/ilham/data/ilham20keC1")
 print("Processing..")
-ap = a[int(len(a)/2):int(len(a)*2/3)]
-bp = b[int(len(b)/2):int(len(b)*2/3)]
+ap = int(len(a)/15)
+bp = int(len(b)/15)
 a = FunctionOnlyone.bandpass_firwin_filter(a,1200,20,500,len(a)/15)
 b = FunctionOnlyone.bandpass_firwin_filter(b,1200,20,500,len(b)/15)
 a = FunctionOnlyone.fastFourierTransform(a,15,name="FFTilhamke20C1A", fs=len(a)/15)
@@ -144,7 +144,6 @@ b = FunctionOnlyone.fastFourierTransform(b,15,name="FFTilhamke20C1B", fs=len(b)/
 # b = FunctionOnlyone.welchFunction(a, 15)
 # a = FunctionOnlyone.signalProcessingFirwin(a,15,20,500,500,500,5, show=True)
 # b = FunctionOnlyone.signalProcessingFirwin(b,15,20,500,500,500,5, show=True)
-plotData2(a,b,15,"test","")
 
 # 
 # lowcut = 10

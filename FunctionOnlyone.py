@@ -9,11 +9,12 @@ import numpy as np
 import os
 from datetime import datetime 
 from scipy import fftpack
-from scipy.signal import butter, lfilter, firwin, freqz, welch
+from scipy.signal import butter, lfilter, firwin, freqz, welch, filtfilt, group_delay
 from math import sqrt
+import cmath
 
 def activate():
-    arduino = serial.Serial('COM3', 74880) # Establish the connection on a specific port
+    arduino = serial.Serial('COM6', 74880) # Establish the connection on a specific port
     arduino1 = serial.Serial('COM8', 74880) # Establish the connection on a specific port
     return arduino, arduino1
 
@@ -201,8 +202,8 @@ def writeToDatabase(subjek, data, time, freq, ave, ket, ke):
 
 
 
-def create_readme (subjek, time, freq, ave, ket, ke):
-    f = open("./data/README.txt", "a+")
+def create_readme (subjek,folder, time, freq, ave, ket, ke):
+    f = open("./data/" + str(folder) +  "/README.txt", "a+")
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     t = ("date and time =", dt_string)
@@ -214,8 +215,8 @@ def ave(data):
     return (sum(data)/len(data))
 
 
-def createFile(data1, name, ke):
-    name = "./data/"+ name +  ke + ".txt"
+def createFile(data1, name, ke, subjek="TEST"):
+    name = "./data/"+ str(subjek)+ "/data/" + name +  ke + ".txt"
     print("Membuat file.. "+str(name))
     f = open(str(name), "w+")
     i = 0
@@ -223,8 +224,13 @@ def createFile(data1, name, ke):
         f.write(str(data1[i]))
         i = i+1
     f.close()
-def createFile2(data1, data2, name, ke):
-    name = "./data/" + name +  ke + ".txt"
+    
+def createFile2(data1, data2, name, ke, subjek="TEST", INFO=False):
+    if INFO == True:
+        name = str("./data/"+ str(subjek)+ "/" + name +  ke + ".txt")
+    else:
+        name = str("./data/"+ str(subjek)+ "/data/" + name +  ke + ".txt")
+
     print("Membuat file.. "+str(name))
     f = open(str(name), "w+")
     i = 0
@@ -291,8 +297,8 @@ def plotData20(data1, data2, time, j, name, ke):
 
 j = []
 k = []
-def plotData2VOLT(data1, data2, time, name, ke, limx=False, limy=False,fillb=False, show=False, detail=True, save=False, printInfo=False):
-    saveto = str("./image/"+name+ke+".png")
+def plotData2VOLT(data1, data2, time, name, ke,subjek="TEST", limx=False, limy=False,fillb=False, show=False, detail=True, save=False, printInfo=False):
+    saveto = str("./data/"+ str(subjek) + "/image/"+name+ke+".png")
     name1 = "Hasil akusisi " + name + " percobaan ke-" + ke
     o = [0, len(data1)/3, (len(data1)*2)/3, len(data1)]
     o1 = [0, len(data2)/3, (len(data2)*2)/3, len(data2)]
@@ -352,8 +358,8 @@ def plotData2VOLT(data1, data2, time, name, ke, limx=False, limy=False,fillb=Fal
         print("Freqlist B: ", k)
     return (saveto)
 
-def plotData2ADC(data1, data2, time, name, ke, show=False, save=False):
-    saveto = str("./image/"+name+ke+".png")
+def plotData2ADC(data1, data2, time, name, ke,subjek="test", show=False, save=False):
+    saveto = str("./data/"+ str(subjek)+ "/" +str(name)+str(ke)+".png")
     name1 = "Hasil akusisi " + name + " percobaan ke-" + ke
     o = [0, len(data1)/3, (len(data1)*2)/3, len(data1)]
     o1 = [0, len(data2)/3, (len(data2)*2)/3, len(data2)]
@@ -606,7 +612,7 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
     y = lfilter(b, a, data)
     return y
 
-def recrification(a, Ave=True):
+def recrification(a, Ave=False):
     mA = []
     A = ave(a)
     for element in a:
@@ -647,8 +653,9 @@ def bandpass_firwin(ntaps, lowcut, highcut, fs, window='hamming'):
 def bandpass_firwin_filter(data, ntaps, lowcut, highcut, fs):
     taps = bandpass_firwin(ntaps, lowcut, highcut, fs)
     # w,h = freqz(taps, 1, worN=2000)
-    y = lfilter(taps,1.0, data)
-    return y
+    y = filtfilt(taps,1.0, data)
+    # y = lfilter(taps,1.0, data)
+    return y[int(fs):]
 
 def showResponFilter(taps, lowcut, highcut,fs):
     plt.figure(1, figsize=(12,9))
@@ -667,7 +674,7 @@ def showResponFilter(taps, lowcut, highcut,fs):
     plt.show()
     plt.close()
 
-def signalProcessingFirwin (signal, t, lowcut,highcut,ws, Ave=True, NilaiRMS = 500, process = False , show=False, save=False, RMS1 = True):
+def signalProcessingFirwin (signal, t, lowcut,highcut,ws, Ave=False, NilaiRMS = 500, process = False , show=False, save=False, RMS1 = True):
     fs = len(signal)/t
     if process == True :
         print("filtering..")
@@ -685,8 +692,8 @@ def signalProcessingFirwin (signal, t, lowcut,highcut,ws, Ave=True, NilaiRMS = 5
         signal = RMS(signal, NilaiRMS)
     return signal
 
-def fastFourierTransform(signal, time, name="TEST", plot=True, save=True,fs = False):
-    if fs == False:
+def fastFourierTransform(signal, time, name="TEST", plot=True, save=True,fs = True):
+    if fs == True:
         fs = len(signal)/time
     Signal = fftpack.fft(signal)
     freqs = fftpack.fftfreq(len(signal))*fs
@@ -715,8 +722,8 @@ def welchFunction(data, time):
     plt.show()
     plt.close()
 
-def ReadFile(dataName, ADC = True):
-    path = str("./data/" + dataName + ".txt")
+def ReadFile(dataName, subjek="TEST", ADC = True):
+    path = str("./data/" + str(subjek) + "/data/" + dataName + ".txt")
     with open(path) as f:
         content =f.readlines()
     i = 0
@@ -735,7 +742,8 @@ def ReadFile(dataName, ADC = True):
         i = i + 1
     return c,d 
 
-def GetInfo(name1, j, time, name="TEST", ke="", printInfo=True):
+
+def GetInfo(name1, j, time,subjek="TEST" , ke="", printInfo=True):
     Ap = []
     Bp = []
     At = []
@@ -746,10 +754,10 @@ def GetInfo(name1, j, time, name="TEST", ke="", printInfo=True):
     Pb = []
     k = 1
     for i in range(j):
-        if k != 9:
+        if k != 90:
             name = str(name1 + str(k))
-            print("Processing Data.. ", name)
-            a,b = ReadFile(name)
+            # print("Processing Data.. ", name)
+            a,b = ReadFile(name, subjek=subjek)
             ai = signalProcessingFirwin(a,15,20,500,500,Ave=False)
             bi = signalProcessingFirwin(b,15,20,500,500,Ave=False)
             peak1 = max(ai[int(len(ai)/3):int(len(ai)*2/3)])
@@ -770,14 +778,22 @@ def GetInfo(name1, j, time, name="TEST", ke="", printInfo=True):
             Bi.append(ave2)
         k = k + 1 
         i = i + 1
-    createFile2(Ai,Bi, str("RataRataData" + str(name)), ke)
-    plotInfo(Ai, Bi, 19,xl="Data Pengambilan ke", yl="", name=str("0RataRataData" + str(name)), title="Rata rata data")
-    createFile2(Ap,Bp, str("PeakValueData" + str(name)), ke)
-    plotInfo(Ap, Bp, 19,xl="Data Pengambilan ke", yl="Volt", name=str("0PeakValue" + str(name)), title="Nilai Peak data")
-    createFile2(At, Bt, str("WaktuPeakData" + str(name)), ke)
-    plotInfo(At, Bt, 19,xl="Data Pengambilan ke", yl="Waktu (s)", name=str("0WaktuPeakData" + str(name)), title="Waktu Peak Data")
-    createFile2(Pa, Pb, str("LuasData"+ str(name)), ke)
-    plotInfo(Ai, Bi, 19,xl="Data Pengambilan ke", yl="", name=str("0LuasData" + str(name)), title="Nilai Luas Data")
+    createFile2(Ai,Bi, str(str(name) + "RataRataData"), ke, subjek=subjek)
+    plotInfo(Ai, Bi, j,xl="Data Pengambilan ke", yl="",subjek=subjek, name=str(str(name)+"RataRataData" ), title="Rata rata data")
+    createFile2(Ap,Bp, str(str(name) +"PeakValueData"), ke, subjek=subjek)
+    plotInfo(Ap, Bp, j,xl="Data Pengambilan ke", yl="Volt",subjek=subjek, name=str(str(name)+"PeakValue"), title="Nilai Peak data")
+    createFile2(At, Bt, str(str(name) + "WaktuPeakData"), ke, subjek=subjek)
+    plotInfo(At, Bt, j,xl="Data Pengambilan ke", yl="Waktu (s)",subjek=subjek, name=str(str(name)+"WaktuPeakData"), title="Waktu Peak Data")
+    createFile2(Pa, Pb, str(str(name)+"LuasData"), ke, subjek=subjek)
+    plotInfo(Pa, Pb, j,xl="Data Pengambilan ke", yl="",subjek=subjek, name=str(str(name)+"LuasData"), title="Nilai Luas Data")
+    meanA = [ave(Ai), ave(Ap), ave(At), ave(Pa)]
+    meanB = [ave(Bi), ave(Bp), ave(Bt), ave(Pb)]
+    createFile2(meanA, meanB, name="INFODATA", ke="", subjek=subjek, INFO=True)
+    # plotInfo(Ai, Bi, 2, xl = '', yl = '', subjek=subjek,name=str(str(name)+"RataRataDataRT"), title="Perbandingan rata rata dari tangan kanan dan kiri",labels=["Tangan Kanan", "tangan kiri"] )
+    # plotInfo(Ap, Bp, 2, xl = '', yl = '', subjek=subjek,name=str(str(name)+"PeakValueRT"), title="Perbandingan Peak Value dari tangan kanan dan kiri",labels=["Tangan Kanan", "tangan kiri"] )
+    # plotInfo(At, Bt, 2, xl = '', yl = '', subjek=subjek,name=str(str(name)+"WaktuPeakDataRT"), title="Perbandingan Waktu Peak rata dari tangan kanan dan kiri",labels=["Tangan Kanan", "tangan kiri"] )
+    # plotInfo(Pa, Pb, 2, xl = '', yl = '', subjek=subjek,name=str(str(name)+"LuasDataRT"), title="Perbandingan Luas Data dari tangan kanan dan kiri",labels=["Tangan Kanan", "tangan kiri"] )
+
     if printInfo == True:
         print("Rata Rata data A : ", ave(Ai))
         print("Rata Rata data B : ", ave(Bi))
@@ -788,40 +804,93 @@ def GetInfo(name1, j, time, name="TEST", ke="", printInfo=True):
         print("Luas Data A : ", ave(Pa))
         print("Luas Data B : ", ave(Pb))
 
+
     
+# def plotInfo(data1,data2,jumlahData,xl, yl,name="TEST",title="INFO", ke="", save=True, show=False):
+#     saveto = str("./image/" + str(name) + str(ke) +"INFO.png")
+#     labels = []
+#     width = 0.35
+#     i = 1
+#     j = []
+#     while i <= jumlahData:
+#         j.append(i)
+#         G = str("G"+str(i))
+#         labels.append(G)
+#         i += 1
+#     i = 0
+#     k = []
+#     while i <= jumlahData:
+#         k.append(str(i))
+#         i += 1
+#     i = 0
+#     m = []
+#     while i <= jumlahData:
+#         m.append(i)
+#         i += 1
 
-def plotInfo(data1,data2,jumlahData,xl, yl,name="TEST",title="INFO", ke="", save=True, show=False):
-    saveto = str("./image/" + str(name) + str(ke) +"INFO.png")
-    i = 1
-    j = []
-    while i <= jumlahData:
-        j.append(i)
-        i += 1
-    i = 0
-    k = []
-    while i <= jumlahData:
-        k.append(str(i))
-        i += 1
-    i = 0
-    m = []
-    while i <= jumlahData:
-        m.append(i)
-        i += 1
+#     # grid = plt.GridSpec(1, 1, wspace=0.2, hspace=0.7, left=0.09, bottom=0.12, right=0.95, top=0.88)
+    # plt.figure(figsize=(18,6))
+#     # plt.subplot(grid[0,0])
+#     plt.plot(j,data1, label="Data tangan kanan")
+#     plt.plot(j,data2, label="Data tangan kiri")
+#     plt.title(str(str(title) + " " + str(ke)))
+#     plt.xlabel(str(xl))
+#     plt.ylabel(str(yl))
+#     plt.xticks(m,k)
+#     plt.grid(True)
+#     plt.savefig(saveto)
+#     if show == True:
+#         plt.show()
+#         plt.close()
 
-    # grid = plt.GridSpec(1, 1, wspace=0.2, hspace=0.7, left=0.09, bottom=0.12, right=0.95, top=0.88)
-    plt.figure(figsize=(18,6))
-    # plt.subplot(grid[0,0])
-    plt.plot(j,data1, label="Data tangan kanan")
-    plt.plot(j,data2, label="Data tangan kiri")
-    plt.title(str(str(title) + " " + str(ke)))
-    plt.xlabel(str(xl))
-    plt.ylabel(str(yl))
-    plt.xticks(m,k)
-    plt.grid(True)
-    plt.savefig(saveto)
-    if show == True:
+# def plotInfoLast(data1, )
+
+def plotInfo(data1,data2,jumlahData,xl, yl,subjek="subjek",name="TEST",title="INFO", ke="",labels=False, save=True, show=False):
+    saveto = str("./data/" + str(subjek)+ "/image/" + str(name) + str(ke) +"INFO.png")
+    if labels == False:
+        labels = []
+        i = 1
+        j = []
+        while i <= jumlahData:
+            G = str("G"+str(i))
+            labels.append(G)
+            i += 1  
+    men_means = data1
+    women_means = data2
+    x = np.arange(len(labels))  # the label locations
+    width = 0.35  # the width of the bars
+    grid = plt.GridSpec(1, 1, wspace=0.2, hspace=0.7, left=0.09, bottom=0.12, right=0.95, top=0.88)
+    fig, ax = plt.subplots(figsize=(18,6))
+    rects1 = ax.bar(x - width/2, men_means, width, label='Tangan Kanan')
+    rects2 = ax.bar(x + width/2, women_means, width, label='Tangan Kiri')
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel(str(yl))
+    ax.set_xlabel(str(xl))
+    ax.set_title(str(title))
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+    # for rect in rects1:
+    #     height = rect.get_height()
+    #     ax.annotate('{}'.format(height),
+    #                 xy=(rect.get_x() + rect.get_width() / 2, height),
+    #                 xytext=(0, 3),  # 3 points vertical offset
+    #                 textcoords="offset points",
+    #                 ha='center', va='bottom')
+    # for rect in rects2:
+    #     height = rect.get_height()
+    #     ax.annotate('{}'.format(height),
+    #                 xy=(rect.get_x() + rect.get_width() / 2, height),
+    #                 xytext=(0, 3),  # 3 points vertical offset
+    #                 textcoords="offset points",
+    #                 ha='center', va='bottom')
+    fig.tight_layout()
+    if save ==True:
+        plt.savefig(saveto)
+    if show==True:
         plt.show()
-        plt.close()
+    plt.close()
 
     
 
@@ -870,12 +939,26 @@ def plotData2LAST(data1, data2, time, name="TestLAST", ke="", show=False, save=F
     plt.close
     return (saveto)
 
-def programPPT23Juli2020():
+def findplotlim(data1, data2):
+    a = max(data1)
+    b = max(data2)
+    am = min(data1)
+    bm = min(data2)
+    if a > b:
+        lim = a + b/4
+    else:
+        lim = b + a/4
+    return (0,lim)
+
+
+
+def programPPT23Juli2020(dataname, subjek, save=True, Show=False):
     """
     Program untuk memproduksi kembali data data setelah dilakukan perubahan 
 
     """
-    a,b = ReadFile("ilham20keC1")
+    dataname1 = str(str(dataname) + "1")
+    a,b = ReadFile(str(dataname1), subjek=subjek)
     # #FILTER
     time = 15
     # ave1 = ave(a)
@@ -888,27 +971,111 @@ def programPPT23Juli2020():
     b = bandpass_firwin_filter(b, 1400, 20, 500, len(b)/time)
     a = a.tolist()
     b = b.tolist()
-    plotData2VOLT(a,b,time,"PlotIlham20C1FilterFirwin", ke="",limy=(0,0.135),show=True, save=True)
+    lim = findplotlim(a,b)
+    plotData2VOLT(a,b,time,name=str(str(dataname1)+"FilterFirwin"), ke="",subjek=str(subjek),limy=lim,show=show, save=save)
     a = recrification(a, Ave=False)
     b = recrification(b, Ave=False)
-    plotData2VOLT(a,b,time,"PlotIlham20C1Retrification", ke="",limy=(0,0.020) ,show=True, save=True)
+    lim = findplotlim(a,b)
+    plotData2VOLT(a,b,time,name=(str(dataname1) + "Retrification"), ke="", subjek=str(subjek) ,limy=lim ,show=show, save=save)
     a = movingAvarage(a,500)
     b = movingAvarage(b, 500)
-    plotData2VOLT(a,b,time,"PlotIlham20C1MovingAverage", ke="",limy=(0,0.002),fillb=True, show=True, save=True)
+    lim = findplotlim(a,b)
+    plotData2VOLT(a,b,time,name=(str(dataname1) + "MovingAverage"), ke="", subjek=str(subjek) ,limy=lim,fillb=True, show=True, save=True)
     a = RMS(a, 500)
     b = RMS(b, 500)
-    plotData2VOLT(a,b,time,"PlotIlham20C1RMS", ke="",limy=(0,0.002),fillb=True, show=True, save=True)
+    lim = findplotlim(a,b)
+    plotData2VOLT(a,b,time,name=(str(dataname1) + "RMS"), ke="", subjek=str(subjek) ,limy=lim,fillb=True, show=True, save=True)
     n = [1, 10, 20]
     for element in n:
-        name = str("ilham20keC" + str(element))
-        a,b = ReadFile(name)
+        name = str(str(dataname) + str(element))
+        a,b = ReadFile(name, subjek=subjek)
         a = signalProcessingFirwin(a, time, 20, 500, 500,Ave=False, save=True,show=False)
-        b = signalProcessingFirwin(b,time,20,500,500,Ave=False, save=False, show=False)
-        name = str(str(name)+"July24")
-        plotData2VOLT(a,b,time, name, str(element),limy=(0,0.002),fillb=True, show=False, save=True)
-    GetInfo("ilham20keC", 20, time, name="24July")
+        b = signalProcessingFirwin(b,time,20,500,500,Ave=False, save=True, show=False)
+        name = str(str(name)+"PPT")
+        plotData2VOLT(a,b,time, name, str(element), subjek=str(subjek) ,limy=(0,0.002),fillb=True, show=False, save=True)
+    GetInfo(str(dataname), 20, time, subjek=subjek)
     print("Successss!!!")
 
-# programPPT23Juli2020()
+def createDatabaseid(subjek, subjekfolder):
+    path = str("./data/DatabaseSubjek.txt")
+    f = open(path, "a+")
+    info = str("\n"+str(subjek) + "," + str(subjekfolder))
+    f.write(info)
+    f.close()
 
-   
+def GetSubjek():
+    path = str("./data/DatabaseSubjek.txt")
+    with open(path) as f:
+        content = f.readlines()
+    i = 0
+    c = []
+    d = []
+    while i < len(content):
+        a,b = content[i].split(',')
+        c.append(a)
+        d.append(b.strip())
+        i+=1
+    return c,d
+
+def fftProgram(data, time ,fs=True):
+    if fs == True:
+        fs = len(data)/time
+    # Defide the data to every seccond.
+    i = 0
+    mean = []
+    while i < 14:
+        signal = data[int(len(data)*i/time):int(len(data)*(i+1)/time)]
+        Signal = fftpack.fft(signal)
+        freqs = fftpack.fftfreq(len(data))*fs
+        if i < 13:
+            signal2 = data[int(len(data)*(i+0.5)/time):int(len(data)*(i+1.5))]
+            Signal2 = fftpack.fft(signal)
+            freqs2 = fftpack.fftfreq(len(data))*fs
+
+        # print(data.index(signal[0]), data.index(signal[-1]))
+        Signal = fftpack.fft(signal)
+        freqs = fftpack.fftfreq(len(data))*fs
+        # to get data fft mean
+        # freqs = freqs.tolist()
+        # Signal = Signal.tolist()
+        # m = []
+        # S = 0
+        # FreqM = 0
+        # for element in Signal:
+        #     meanS = element * abs(freqs[int(Signal.index(element))])
+        #     S = S + meanS
+        #     FreqM = FreqM + freqs[int(Signal.index(element))]
+        # mean.append(meanS/FreqM)
+        i += 1
+        if i < 5:
+            plot = True
+        else:
+            plot = False
+        
+        if plot == True:
+            # fig, ax = plt.subplots()
+            plt.plot(freqs, abs(c))
+        plt.xlabel('Frequency in Hz')
+        plt.ylabel('Frequency Domain (spectrum) Magnitude')
+        plt.grid(True)
+    plt.show()
+
+
+    # Signal = fftpack.fft(signal)
+    # freqs = fftpack.fftfreq(len(signal))*fs
+
+
+# a,b = ReadFile("rafliA1", subjek="Rafli")
+# a = bandpass_firwin_filter(a,1400, 20,500, fs=(int(len(a)/15)))
+# a = recrification(a)
+# print(len(a))
+# fftProgram(a, 15)
+# GetSubjek()
+
+    
+
+
+# programPPT23Juli2020("rafliA", "Rafli")
+
+
+# GetInfo("ilham20keC", 20, 15, subjek="ilham")

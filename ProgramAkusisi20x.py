@@ -1,12 +1,12 @@
 from time import sleep
 import FunctionOnlyone
 
-
 def akusisi():
     dataA = []
     dataB = []
     temp = []
-    subjek = input("Masukan nama raflisubjek... ")
+    folder = input("masukan nama folder.. /pastikan sudah dibuat : ")
+    subjek = input("Masukan nama subjek... ")
     i = 1
     print("Akusisi data akan dimulai 20x selama 15 detik tiap gerakan nya secara bersamaan")
     while i < 21:
@@ -19,7 +19,7 @@ def akusisi():
         sleep(3)
         print("Pengambilan data dimulai!")
         a,b = FunctionOnlyone.activeteAccusition(a, b, t)
-        ke = FunctionOnlyone.plotData2(a,b,t,subjek, ke = str(i))
+        ke = FunctionOnlyone.plotData2ADC(a,b,t,subjek, ke = str(i), subjek=folder, show=True, save=True)
         r = input("Masukan data? y/n")
         if r == 'y':
             freqA = str(len(a)/t)
@@ -28,28 +28,21 @@ def akusisi():
             bi = FunctionOnlyone.ave(b)
             ketA = str("Data Sensor 1 (Kanan) untuk pengambilan ke " + str(i))
             ketB = str("Data Sensor 2 (Kiri) untuk pengambilan ke " + str(i))
-            FunctionOnlyone.createFile2(a,b,subjek,str(i))
-            FunctionOnlyone.create_readme(subjek, str(t), str(freqA), str(ai), str(ketA), str(ke))
-            FunctionOnlyone.create_readme(subjek, str(t), str(freqB), str(bi), str(ketB), str(ke))
+            FunctionOnlyone.createFile2(a,b,subjek,str(i), subjek=folder)
+            FunctionOnlyone.create_readme(subjek,folder, str(t), str(freqA), str(ai), str(ketA), str(ke))
+            FunctionOnlyone.create_readme(subjek,folder, str(t), str(freqB), str(bi), str(ketB), str(ke))
             print("Pemrosesan data selesai!")
             i = i + 1
-            dataA = FunctionOnlyone.addData(dataA,a) 
-            dataB = FunctionOnlyone.addData(dataB,b)
+        
         # except:
         #     input("Continue?")
         #     print("Pengambilan Error, mengulang untuk yang ke.. ", i)
         #     pass
+    FunctionOnlyone.createDatabaseid(subjek, folder)
     print("Pengamilan data 20x selesai!")
-    ke = "PengambilanData20x"
-    t = t*20
-    freqA = str(len(dataA)/t)
-    freqB = str(len(dataB)/t)
-    ai = FunctionOnlyone.ave(dataA)
-    bi = FunctionOnlyone.ave(dataB)
-    FunctionOnlyone.createFile2(dataA,dataB, subjek, ke)
-    FunctionOnlyone.create_readme(subjek, str(t), str(freqA), str(ai), str(ketA), str(ke))
-    FunctionOnlyone.create_readme(str(subjek), str(t), str(freqB), str(bi), str(ketB), str(ke))
-    ke = FunctionOnlyone.plotData20( dataA , dataB , t , 15,subjek, ke=ke)
+    print("Menampilkan hasil data..")
+
+    # ke = FunctionOnlyone.plotData20( dataA , dataB , t , 15,subjek, ke=ke)
 
 akusisi()
 
