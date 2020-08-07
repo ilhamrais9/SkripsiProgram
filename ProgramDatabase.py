@@ -64,10 +64,11 @@ plt.plot(Freqs, abs(q))
 plt.semilogy(awal, np.sqrt(Pxxw))
 plt.semilogy(tengah, np.sqrt(Pxxt))
 plt.semilogy(akhir, np.sqrt(Pxxk))
-y
+print(len(awal), len(np.sqrt(Pxxw)))
+print(max(np.sqrt(Pxxw)[20:500]))
 plt.legend(("FFT tanpa Welch Function","awal", "tengah", "akhir"))
 plt.grid(True)
-
+# plt.ylim(ylimit)
 plt.xlim(0, 520)
 plt.show()
 plt.close()
