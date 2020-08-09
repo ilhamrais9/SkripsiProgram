@@ -23,7 +23,7 @@ def akusisi():
         b = FunctionOnlyone.CheckData(b)
         ke = FunctionOnlyone.plotData2ADC(a,b,t,subjek, ke = str(i), subjek=folder, show=True, save=True)
         r = input("Masukan data? y/n")
-        if r == 'y':
+        if r == 'y' or r == '':
             freqA = str(len(a)/t)
             freqB = str(len(b)/t)
             ai = FunctionOnlyone.ave(a)
@@ -50,11 +50,10 @@ def akusisi():
         c,d = FunctionOnlyone.ReadFile(dataName, folder)
         c = FunctionOnlyone.signalProcessingFirwin(c, 15, 20, 500, 500,Ave=False, save=save,show=show)
         d = FunctionOnlyone.signalProcessingFirwin(d,15,20,500,500,Ave=False, save=save, show=show)
-        name = str("Filtered"+str(subjek[i]))
+        name = str("Filtered"+str(subjek))
         FunctionOnlyone.createFile2(c,d,name,str(i),subjek=folder)
         i += 1
     print("Pengamilan data 20x selesai!")
-    print("Menampilkan hasil data..")
 
     # ke = FunctionOnlyone.plotData20( dataA , dataB , t , 15,subjek, ke=ke)
 

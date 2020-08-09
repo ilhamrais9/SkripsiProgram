@@ -14,8 +14,8 @@ from math import sqrt
 import cmath
 
 def activate():
-    arduino = serial.Serial('COM8', 74880) # Establish the connection on a specific port
-    arduino1 = serial.Serial('COM6', 74880) # Establish the connection on a specific port
+    arduino = serial.Serial('COM6', 74880) # Establish the connection on a specific port
+    arduino1 = serial.Serial('COM8', 74880) # Establish the connection on a specific port
     return arduino, arduino1
 
 def activate1():
@@ -349,7 +349,7 @@ def plotData2VOLT(data1, data2, time, name, ke,subjek="TEST", limx=False, limy=F
         plt.savefig(saveto)
     if show ==True:
         plt.show()
-    plt.close
+    plt.close()
     j.append(freq)
     k.append(freq2)
     if printInfo == True:   
@@ -358,7 +358,9 @@ def plotData2VOLT(data1, data2, time, name, ke,subjek="TEST", limx=False, limy=F
         print("Freqlist B: ", k)
     return (saveto)
 
-def plotData2ADC(data1, data2, time, name, ke,subjek="test", show=False, save=False):
+def plotData2ADC(data1, data2, time, name, ke,subjek="test",ylimit=False, show=False, save=False):
+    if ylimit == False:
+        ylimit = findplotlim(data1, data2)
     saveto = str("./data/"+ str(subjek)+ "/image/" +str(name)+str(ke)+".png")
     name1 = "Hasil akusisi " + name + " percobaan ke-" + ke
     o = [0, len(data1)/3, (len(data1)*2)/3, len(data1)]
@@ -374,12 +376,14 @@ def plotData2ADC(data1, data2, time, name, ke,subjek="test", show=False, save=Fa
     plt.subplot(grid[0,0])
     plt.plot(data1)
     plt.title(ket1)
+    plt.ylim(ylimit)
     plt.grid()
     plt.ylabel("ADC")
     plt.xlabel("Waktu (s)")
     plt.xticks(o, oi)
     plt.subplot(grid[1,0])
     plt.plot(data2)
+    plt.ylim(ylimit)
     plt.title(ket2)
     plt.ylabel("ADC")
     plt.grid()
@@ -939,16 +943,23 @@ def plotData2LAST(data1, data2, time, name="TestLAST", ke="", show=False, save=F
     plt.close
     return (saveto)
 
-def findplotlim(data1, data2):
+def findplotlim(data1, data2, low=False, i=100):
     a = max(data1)
     b = max(data2)
     am = min(data1)
     bm = min(data2)
     if a > b:
-        lim = a + b/4
+        lim = a + a/i
     else:
-        lim = b + a/4
-    return (0,lim)
+        lim = b + b/i
+    
+    if low == True:
+        low = 0
+    elif am < bm:
+        low = am - am/i
+    else: 
+        low = bm - bm/i
+    return (low,lim)
 
 
 
@@ -999,8 +1010,16 @@ def programPPT23Juli2020(dataname, subjek, save=True, Show=False):
 def createDatabaseid(subjek, subjekfolder):
     path = str("./data/DatabaseSubjek.txt")
     f = open(path, "a+")
-    info = str("\n"+str(subjek) + "," + str(subjekfolder))
+    info = str("\n"+str(subjek) + "," + str(subjekfolder)+',0')
     f.write(info)
+    f.close()
+
+def recreateDatabaseid(subjek,folder, i):
+    path = str("./data/DatabaseSubjek.txt")
+    f = open(path, "w+")
+    for k in range(len(subjek)):
+        info = str("\n"+str(subjek[k]) + "," + str(folder[k])+','+str(i[k]))
+        f.write(info)
     f.close()
 
 def GetSubjek():
@@ -1010,12 +1029,14 @@ def GetSubjek():
     i = 0
     c = []
     d = []
+    e = []
     while i < len(content):
-        a,b = content[i].split(',')
-        c.append(a)
+        a,b,k = content[i].split(',')
+        c.append(a.strip())
         d.append(b.strip())
+        e.append(k.strip())
         i+=1
-    return c,d
+    return c,d,e
 
 def fftProgram(data, time ,fs=True):
     if fs == True:
@@ -1075,6 +1096,19 @@ def CheckData(data):
 
     # Signal = fftpack.fft(signal)
     # freqs = fftpack.fftfreq(len(signal))*fs
+
+def welchdata(a,b,ffirwin=True):
+    if ffirwin==True:
+        a = bandpass_firwin_filter(a, 1400, 20, 500, len(a)/15)
+        b = bandpass_firwin_filter(b, 1400, 20, 500, len(b)/15)
+    awalA = a[0:int(len(a)/3)]
+    tengahA = a[int(len(a)/3):int(len(a)*2/3)]
+    akhirA = a[int(len(a)*2/3):-1]
+    awalB = b[0:int(len(b)/3)]
+    tengahB = b[int(len(b)/3):int(len(b)*2/3)]
+    akhirB = b[int(len(b)*2/3):-1]
+
+
 
 
 # a,b = ReadFile("rafliA1", subjek="Rafli")
