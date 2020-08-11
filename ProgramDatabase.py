@@ -24,7 +24,7 @@ while i < len(subjek) and i < len(folder):
     while j <= 20 :
         dataS = {}
         if f[i]=='0':
-            dataName = str("Filtered"+str(subjek[i])+str(j))
+            dataName = str(str(subjek[i])+str(j))
             c,d = FunctionOnlyone.ReadFile(dataName, folder[i])
             a = FunctionOnlyone.signalProcessingFirwin(c, 15, 20, 500, 500,Ave=True, save=save,show=show)
             b = FunctionOnlyone.signalProcessingFirwin(d,15,20,500,500,Ave=True, save=save, show=show)
@@ -51,7 +51,7 @@ while i < len(subjek) and i < len(folder):
     i+=1
 
 FunctionOnlyone.recreateDatabaseid(subjek, folder, f)
-
+t = 15
 i = 0
 for y in range(len(folder)):
     print("Processing..", folder[i])
@@ -64,7 +64,6 @@ for y in range(len(folder)):
         d = data.get(i).get(x).get('fkiri')
         name = str("Processed" + str(subjek[i]))
         FunctionOnlyone.plotData2VOLT(c,d, t, name, str(x+1), subjek=str(folder[i]) ,limy=FunctionOnlyone.findplotlim(c,d, low=True, i=10), fillb=True, show=False, save=True, printInfo=False)
-
     i += 1
 
 

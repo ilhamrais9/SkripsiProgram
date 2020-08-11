@@ -14,8 +14,8 @@ from math import sqrt
 import cmath
 
 def activate():
-    arduino = serial.Serial('COM6', 74880) # Establish the connection on a specific port
-    arduino1 = serial.Serial('COM8', 74880) # Establish the connection on a specific port
+    arduino = serial.Serial('COM8', 74880) # Establish the connection on a specific port
+    arduino1 = serial.Serial('COM6', 74880) # Establish the connection on a specific port
     return arduino, arduino1
 
 def activate1():
@@ -1018,7 +1018,10 @@ def recreateDatabaseid(subjek,folder, i):
     path = str("./data/DatabaseSubjek.txt")
     f = open(path, "w+")
     for k in range(len(subjek)):
-        info = str("\n"+str(subjek[k]) + "," + str(folder[k])+','+str(i[k]))
+        if k == 0:
+            info = str(str(subjek[k]) + "," + str(folder[k])+','+str(i[k]))
+        else:    
+            info = str("\n"+str(subjek[k]) + "," + str(folder[k])+','+str(i[k]))
         f.write(info)
     f.close()
 

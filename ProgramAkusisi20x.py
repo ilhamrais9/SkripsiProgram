@@ -53,7 +53,7 @@ def akusisi():
         name = str("Filtered"+str(subjek))
         FunctionOnlyone.createFile2(c,d,name,str(i),subjek=folder)
         i += 1
-    print("Pengamilan data 20x selesai!")
+    print("Pengambilan data 20x selesai!")
 
     # ke = FunctionOnlyone.plotData20( dataA , dataB , t , 15,subjek, ke=ke)
 
